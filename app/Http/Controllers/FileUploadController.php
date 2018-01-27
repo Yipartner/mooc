@@ -21,7 +21,7 @@ class FileUploadController extends Controller
         $saveMp4Entry=base64_urlSafeEncode($this->bucket.":test1.mp4");
         //视频处理方式
         $url=base64_urlSafeEncode("p37gfblil.bkt.clouddn.com");
-        $videoDeal ="avthumb/m3u8/domain/".$url."/vb/500k|saveas/".$saveMp4Entry;
+        $videoDeal ="avthumb/m3u8/noDomain/0/vb/500k|saveas/".$saveMp4Entry;
         $policy = array(
             'persistentOps' => $videoDeal,
             'persistentPipeline' => "video-pipe",
