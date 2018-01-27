@@ -18,7 +18,7 @@ class FileUploadController extends Controller
         //过期时间
         $expires =3600;
         //存储位置和名称
-        $saveMp4Entry=base64_urlSafeEncode($this->bucket.":test.mp4");
+        $saveMp4Entry=base64_urlSafeEncode($this->bucket.":test1.mp4");
         //视频处理方式
         $url=base64_urlSafeEncode("p37gfblil.bkt.clouddn.com");
         $videoDeal ="avthumb/m3u8/domain/".$url."/vb/500k|saveas/".$saveMp4Entry;
