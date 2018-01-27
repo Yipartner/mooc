@@ -30,5 +30,6 @@ class FileUploadController extends Controller
         return response()->json([
             'uploadToken' => $uploadToken
         ]);
+
     }
 }
