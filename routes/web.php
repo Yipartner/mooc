@@ -16,3 +16,7 @@ Route::get('/', function () {
 });
 
 Route::get('/upload/token','FileUploadController@getUploadToken');
+
+Route::post('/user/register','UserController@register');
+Route::post('/user/login','UserController@login');
+Route::get('/user/test','UserController@test')->middleware('token');
