@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Route::post('/upload/token','FileUploadController@getUploadToken');
 Route::post('/upload/callback','FileUploadController@callback');
-Route::post('/notify','FileController@notify');
+Route::post('/notify','FileUploadController@notify');
 
 Route::post('/user/register','UserController@register');
 Route::post('/user/login','UserController@login');
