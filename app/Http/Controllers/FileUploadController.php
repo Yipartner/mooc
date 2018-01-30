@@ -79,7 +79,7 @@ class FileUploadController extends Controller
         ]);
     }
     public function notify(Request $request){
-        DB::table('files')->where('status_id',$request->persistentId)->update([
+        DB::table('files')->where('status_id',$request->id)->update([
             'status' => $request->code
         ]);
     }
