@@ -58,6 +58,7 @@ class FileUploadController extends Controller
         $url = base64_urlSafeEncode("p37gfblil.bkt.clouddn.com");
         $videoDeal = "avthumb/m3u8/noDomain/0/domain/" . $url . "/vb/500k|saveas/" . $saveMp4Entry;
         $policy = array(
+            'saveKey'=>$trueFileName,
             'callbackUrl' => 'mooc.sealbaby.cn/upload/callback',
             'callbackBody' => '{"persistentId":"$(persistentId)","file_id":"'.$addRes['file_id'].'"}',
             'callbackBodyType' => 'application/json',
@@ -65,7 +66,7 @@ class FileUploadController extends Controller
             'persistentPipeline' => "video-pipe",
             'persistentNotifyUrl' => 'mooc.sealbaby.cn/notify'
         );
-        $uploadToken = $auth->uploadToken($this->bucket, $trueFileName, $expires, $policy, true);
+        $uploadToken = $auth->uploadToken($this->bucket,null, $expires, $policy, true);
         return response()->json([
             'uploadToken' => $uploadToken
         ]);
