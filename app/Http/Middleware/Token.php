@@ -27,11 +27,17 @@ class Token
     {
         if ($request->hasHeader('token')) {
             $token = $this->tokenService->getTokenByContent($request->header('token'));
+            if (!$token)
+                return response()->json([
+                    'code' => 1006,
+                    'message' => 'token无效'
+                ]);
             $time = new Carbon();
             if ($request->header('token') == $token->token_content && $token->expired_at > $time){
                 $userInfo = $this->tokenService->getUserByToken($token->user_id);
             $request->user = $userInfo;
-            return $next($request);}
+            return $next($request);
+            }
         else
             {
                 return response()->json([

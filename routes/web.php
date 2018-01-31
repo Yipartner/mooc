@@ -19,6 +19,9 @@ Route::post('/upload/token','FileUploadController@getUploadToken');
 Route::post('/upload/callback','FileUploadController@callback');
 Route::post('/notify','FileUploadController@notify');
 
+
 Route::post('/user/register','UserController@register');
 Route::post('/user/login','UserController@login');
+Route::get('/user/info/{user_id}','UserController@getUserInfo');
+Route::post('/user/edit','UserController@userInfoEdit')->middleware('token');
 Route::get('/user/test','UserController@test')->middleware('token');

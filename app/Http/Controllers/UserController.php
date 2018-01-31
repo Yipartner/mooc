@@ -6,6 +6,7 @@ use App\Service\TokenService;
 use App\Service\UserService;
 use App\Tool\ValidationHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -41,7 +42,7 @@ class UserController extends Controller
                 ]);
             }
             $userInfo['status'] = 1;
-             $this->userService->register($userInfo);
+            $this->userService->register($userInfo);
             return response()->json([
                 'code' => 1000,
                 'message' => "注册成功",
@@ -71,16 +72,68 @@ class UserController extends Controller
                     'message' => $loginRes['message']
                 ]);
             } else {
-                $token=$this->tokenService->createToken($loginRes['user_id']);
+                $token = $this->tokenService->createToken($loginRes['user_id']);
                 return response()->json([
-                    'code'=>1000,
-                    'message'=>"登录成功，请查收token！",
-                    'token' =>$token
+                    'code' => 1000,
+                    'message' => "登录成功，请查收token！",
+                    'token' => $token
                 ]);
             }
         }
     }
-    public function test(Request $request){
-        dd($request->user);
+
+    public function userInfoEdit(Request $request)
+    {
+        $userInfo = [];
+        if (!isset($request->user_id))
+            return response()->json([
+                'code' => 1004,
+                'message' => '缺少用户id'
+            ]);
+        $user_id = $request->user_id;
+        if ($request->user->user_id != $user_id)
+            return response()->json([
+                'code' => 1007,
+                'message' => '没有权限'
+            ]);
+        $userInfo['user_id'] = $user_id;
+        if (isset($request->password)) {
+            $userInfo['password'] = $request->password;
+            if (!$this->userService->checkPassword($user_id, $request->password))
+                return response()->json([
+                    'code' => 1007,
+                    'message' => '密码错误'
+                ]);
+            $this->userInfoEdit($userInfo);
+            return response()->json([
+                'code' => 1000,
+                'message' => '密码修改成功'
+            ]);
+        }
+        $userInfo['user_name'] = $request->user_name;
+        $this->userService->userInfoEdit($userInfo);
+        return response()->json([
+            'code' => 1000,
+            'message' => '信息修改成功'
+        ]);
+    }
+
+    public function getUserInfo($user_id)
+    {
+        $userInfo = $this->userService->getUserInfo($user_id);
+        if ($userInfo)
+            return response()->json([
+                'code' => 1000,
+                'userInfo' => $userInfo
+            ]);
+        return response()->json([
+            'code'=>1003,
+            'message' => '用户不存在'
+        ]);
+    }
+
+    public function test(Request $request)
+    {
+        dd($request->user->user_id);
     }
 }
