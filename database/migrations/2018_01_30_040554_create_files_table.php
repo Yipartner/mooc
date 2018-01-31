@@ -20,7 +20,7 @@ class CreateFilesTable extends Migration
             $table->integer('lesson_id');
             $table->string('status_id')->nullable()->default(null);
             //0成功，1等待处理，2正在处理，3处理失败，4通知提交失败。
-            $table->string('status')->default(1);
+            $table->string('status')->default(2);
             $table->string('true_file_name');
         });
     }

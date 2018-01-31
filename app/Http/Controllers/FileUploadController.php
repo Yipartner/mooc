@@ -41,11 +41,10 @@ class FileUploadController extends Controller
         $mp4Info['true_file_name'] = $trueFileName;
         $mp4Info['file_name'] = $fileName;
         $mp4Info['file_url']="http://p37gfblil.bkt.clouddn.com".$mp4Info['true_file_name'];
-        $addRes=$this->fileService->addFile($mp4Info);
-        if ($addRes['code']!=2000){
+        if ($this->fileService->isFileNameExist($mp4Info['file_name'])){
             return response()->json([
-                "code"=>$addRes['code'],
-                "message"=>$addRes['message']
+                'code' => 2002,
+                'message' =>"文件名已存在"
             ]);
         }
         $auth = new Auth($this->accessKey, $this->secretKey);
@@ -60,7 +59,7 @@ class FileUploadController extends Controller
         $policy = array(
             'saveKey'=>$trueFileName,
             'callbackUrl' => 'mooc.sealbaby.cn/upload/callback',
-            'callbackBody' => '{"persistentId":"$(persistentId)","file_id":"'.$addRes['file_id'].'"}',
+            'callbackBody' => '{"persistentId":"$(persistentId)","mp4Info":'.json_encode($mp4Info).'}',
             'callbackBodyType' => 'application/json',
             'persistentOps' => $videoDeal,
             'persistentPipeline' => "video-pipe",
@@ -73,10 +72,16 @@ class FileUploadController extends Controller
     }
     public function callback(Request $request){
         $persistentId=$request->persistentId;
-        $fileId=$request->file_id;
-        DB::table('files')->where('file_id',$fileId)->update([
-            'status_id'=>$persistentId
-        ]);
+        $mp4Info=$request->mp4Info;
+        $mp4Info['status_id']=$persistentId;
+        $addRes=$this->fileService->addFile($mp4Info);
+
+        if ($addRes['code']!=2000){
+            return response()->json([
+                "code"=>$addRes['code'],
+                "message"=>$addRes['message']
+            ]);
+        }
     }
     public function notify(Request $request){
         DB::table('files')->where('status_id',$request->id)->update([
