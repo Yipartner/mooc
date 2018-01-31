@@ -97,24 +97,31 @@ class UserController extends Controller
                 'message' => '没有权限'
             ]);
         $userInfo['user_id'] = $user_id;
-        if (isset($request->password)) {
-            $userInfo['password'] = $request->password;
+        if (isset($request->newPassword) && isset($request->password)) {
+
+            $userInfo['password'] = $request->newPassword;
             if (!$this->userService->checkPassword($user_id, $request->password))
                 return response()->json([
                     'code' => 1007,
                     'message' => '密码错误'
                 ]);
-            $this->userInfoEdit($userInfo);
+            $this->userService->userInfoEdit($userInfo);
             return response()->json([
                 'code' => 1000,
                 'message' => '密码修改成功'
             ]);
         }
-        $userInfo['user_name'] = $request->user_name;
-        $this->userService->userInfoEdit($userInfo);
+        if (isset($request->user_name) ){
+            $userInfo['user_name'] = $request->user_name;
+            $this->userService->userInfoEdit($userInfo);
+            return response()->json([
+                'code' => 1000,
+                'message' => '信息修改成功'
+            ]);
+        }
         return response()->json([
-            'code' => 1000,
-            'message' => '信息修改成功'
+            'code' => 1004,
+            'message' => '缺少字段，请检查'
         ]);
     }
 
@@ -127,7 +134,7 @@ class UserController extends Controller
                 'userInfo' => $userInfo
             ]);
         return response()->json([
-            'code'=>1003,
+            'code' => 1003,
             'message' => '用户不存在'
         ]);
     }
