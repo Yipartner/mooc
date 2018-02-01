@@ -78,4 +78,12 @@ class UserService
         else
             return false;
     }
+    public function permissionCheck($user_id,string $role){
+        $trueRole=DB::table('user_roles')->where('user_id',$user_id)->value('user_role');
+        if ($trueRole==$role){
+            return true;
+        }
+        else
+            return false;
+    }
 }

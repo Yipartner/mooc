@@ -9,7 +9,6 @@
 namespace App\Tool;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -54,13 +53,5 @@ class ValidationHelper
         }
 
         return $data;
-    }
-    public function permissionCheck($user_id,string $role){
-        $trueRole=DB::table('user_roles')->where('user_id',$user_id)->value('user_role');
-        if ($trueRole==$role){
-            return true;
-        }
-        else
-            return false;
     }
 }
