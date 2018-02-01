@@ -76,7 +76,8 @@ class UserController extends Controller
                 return response()->json([
                     'code' => 1000,
                     'message' => "登录成功，请查收token！",
-                    'token' => $token
+                    'token' => $token,
+                    'user_id' => $loginRes['user_id']
                 ]);
             }
         }
