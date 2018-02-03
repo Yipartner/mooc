@@ -55,7 +55,7 @@ class UserService
         }
         $res['code'] = 1000;
         $res['message'] = "信息正确。允许登录";
-        $res['user_id'] = $userTrueInfo->user_id;
+        $res['user_info'] = $userTrueInfo;
         return $res;
     }
 

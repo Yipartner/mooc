@@ -72,12 +72,13 @@ class UserController extends Controller
                     'message' => $loginRes['message']
                 ]);
             } else {
-                $token = $this->tokenService->createToken($loginRes['user_id']);
+                $token = $this->tokenService->createToken($loginRes['user_info']->user_id);
+                unset($loginRes['user_info']->password);
                 return response()->json([
                     'code' => 1000,
                     'message' => "登录成功，请查收token！",
                     'token' => $token,
-                    'user_id' => $loginRes['user_id']
+                    'user_info' => $loginRes['user_info']
                 ]);
             }
         }
