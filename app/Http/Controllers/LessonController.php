@@ -23,6 +23,7 @@ class LessonController extends Controller
         {
             $rule = [
                 'lesson_name'=>'required',
+                'lesson_description' => 'required'
             ];
             $res=ValidationHelper::validateCheck($request->all(),$rule);
             if ($res->fails()){
@@ -72,7 +73,8 @@ class LessonController extends Controller
         $rule = [
             'lesson_id'=>'required',
             'lesson_name' => 'required',
-            'lesson_master_id'=>'required'
+            'lesson_master_id'=>'required',
+            'lesson_description'=>'required'
         ];
         $res=ValidationHelper::validateCheck($request->all(),$rule);
         if ($res->fails()){

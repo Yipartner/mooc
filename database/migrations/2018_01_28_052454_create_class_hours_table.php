@@ -15,6 +15,7 @@ class CreateClassHoursTable extends Migration
     {
         Schema::create('class_hours', function (Blueprint $table) {
             $table->increments('class_hour_id');
+            $table->string('class_hour_name');
             $table->integer('lesson_id');
             //1:视频 2:文本
             $table->integer('class_type');

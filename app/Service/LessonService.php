@@ -16,7 +16,8 @@ class LessonService
     public function updateLesson($lessonInfo)
     {
         DB::table('lessons')->where('lesson_id', $lessonInfo['lesson_id'])->update([
-            'lesson_name' => $lessonInfo['lesson_name']
+            'lesson_name' => $lessonInfo['lesson_name'],
+            'lesson_description' => $lessonInfo['lesson_description']
         ]);
     }
     public function getLessonInfo($lessonId){
@@ -25,7 +26,7 @@ class LessonService
     }
     public function getLessonList()
     {
-        $lessonList = DB::table('lessons')->get();
+        $lessonList = DB::table('lessons')->select('lesson_id','lesson_name','lesson_master_id')->get();
         return $lessonList;
     }
 

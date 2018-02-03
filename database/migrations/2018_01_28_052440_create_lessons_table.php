@@ -17,6 +17,7 @@ class CreateLessonsTable extends Migration
             $table->increments('lesson_id');
             $table->string('lesson_name');
             $table->integer('lesson_master_id');
+            $table->text('lesson_description');
         });
     }
 
