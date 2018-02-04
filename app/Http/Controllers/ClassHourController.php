@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Service\ClassHourService;
 use App\Service\FileService;
+use App\Service\LessonService;
 use App\Service\UserService;
 use App\Tool\ValidationHelper;
 use Illuminate\Http\Request;
@@ -13,11 +14,13 @@ class ClassHourController extends Controller
     private $classHourService;
     private $userService;
     private $fileService;
-    public function __construct(ClassHourService $classHourService,UserService $userService,FileService $fileService)
+    private $lessonService;
+    public function __construct(LessonService $lessonService,ClassHourService $classHourService,UserService $userService,FileService $fileService)
     {
         $this->classHourService=$classHourService;
         $this->userService=$userService;
         $this->fileService=$fileService;
+        $this->lessonService=$lessonService;
     }
     public function createClass(Request $request){
         $user=$request->user;
@@ -44,7 +47,7 @@ class ClassHourController extends Controller
         }
         $info=ValidationHelper::getInputData($request,$rule);
         if ($info['class_type']==1){
-            if (isset($request->class_url)||empty($request->class_url))
+            if (isset($request->class_url)&&empty($request->class_url))
             {
                 return response()->json([
                     'code' => 4002,
@@ -94,7 +97,7 @@ class ClassHourController extends Controller
         }
         $info=ValidationHelper::getInputData($request,$rule);
         if ($info['class_type']==1){
-            if (isset($request->class_url)||empty($request->class_url))
+            if (isset($request->class_url)&&empty($request->class_url))
             {
                 return response()->json([
                     'code' => 4002,
@@ -104,7 +107,7 @@ class ClassHourController extends Controller
             $info['class_url']=$request->class_url;
         }
         else{
-            if (isset($request->class_content)||empty($request->class_content))
+            if (isset($request->class_content)&&empty($request->class_content))
             {
                 return response()->json([
                     'code' => 4002,
@@ -135,13 +138,34 @@ class ClassHourController extends Controller
             'message' => '删除成功'
         ]);
     }
-    public function getClassInfo($class_id){
+    public function getClassInfo($class_id,Request $request){
         $info = $this->classHourService->classInfo($class_id);
-        if ($info['free']==1){
+        if ($info->free==1){
             return response()->json([
                 'code' => 4000,
                 'info' =>$info
             ]);
         }
+
+        if ($this->lessonService->canUserAccessClass($request->user->user_id,$class_id)){
+            return response()->json([
+                'code' => 4000,
+                'info' =>$info
+            ]);
+        }
+
+        return response()->json([
+            'code' =>4001,
+            'message' => '没有权限查看课时'
+        ]);
+
     }
+    public function classList($lesson_id){
+        $list=$this->classHourService->classList($lesson_id);
+        return response()->json([
+            'code' => 4000,
+            'list' => $list
+        ]);
+    }
+
 }

@@ -84,7 +84,7 @@ class UserController extends Controller
         }
     }
 
-    public function userInfoEdit(Request $request)
+    public function userInfoEdit(Request $request,$user_id)
     {
         $userInfo = [];
         if (!isset($request->user_id))
@@ -92,7 +92,7 @@ class UserController extends Controller
                 'code' => 1004,
                 'message' => '缺少用户id'
             ]);
-        $user_id = $request->user_id;
+
         if ($request->user->user_id != $user_id)
             return response()->json([
                 'code' => 1007,

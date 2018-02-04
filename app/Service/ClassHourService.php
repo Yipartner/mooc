@@ -26,4 +26,5 @@ class ClassHourService{
     public function deleteClass($class_hour_id){
         DB::table('class_hours')->where('class_hour_id',$class_hour_id)->delete();
     }
+    
 }

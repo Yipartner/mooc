@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Service\FileService;
+use App\Service\UserService;
 use App\Tool\ValidationHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,59 +17,70 @@ class FileUploadController extends Controller
     private $secretKey = "8xltykfGaN_lm-ow3VC5KAfb13wWOEehtyQKRMPo";
     private $bucket = "mooc";
     private $fileService;
+    private $userService;
 
-    public function __construct(FileService $fileService)
+    public function __construct(FileService $fileService,UserService $userService)
     {
         $this->fileService=$fileService;
+        $this->userService=$userService;
     }
 
     public function getUploadToken(Request $request)
     {
-        $rule = [
-            'file_name' => 'required',
-            'lesson_id' => 'required'
-        ];
-        $res = ValidationHelper::validateCheck($request->all(), $rule);
-        if ($res->fails()) {
-            return response()->json([
-                'code' => 2001,
-                'message' => $res->errors()
-            ]);
-        }
-        $mp4Info = ValidationHelper::getInputData($request, $rule);
-        $trueFileName = $mp4Info['lesson_id'] . "#" . $mp4Info['file_name'];
-        $fileName = $mp4Info['lesson_id'] . "#TS#" . $mp4Info['file_name'];
-        $mp4Info['true_file_name'] = $trueFileName;
-        $mp4Info['file_name'] = $fileName;
-        $mp4Info['file_url']="http://p37gfblil.bkt.clouddn.com".$mp4Info['true_file_name'];
-        if ($this->fileService->isFileNameExist($mp4Info['file_name'])){
-            return response()->json([
-                'code' => 2002,
-                'message' =>"文件名已存在"
-            ]);
-        }
-        $auth = new Auth($this->accessKey, $this->secretKey);
-        //过期时间
-        $expires = 3600;
-        //存储位置和名称
-        $saveMp4Entry = base64_urlSafeEncode($this->bucket . ":" . $fileName);
-        //视频处理方式
+        $user=$request->user;
+        if ($this->userService->permissionCheck($user->user_id,"teacher")||$this->userService->permissionCheck($user->user_id,"admin")) {
+            $rule = [
+                'file_name' => 'required',
+                'lesson_id' => 'required'
+            ];
+            $res = ValidationHelper::validateCheck($request->all(), $rule);
+            if ($res->fails()) {
+                return response()->json([
+                    'code' => 2001,
+                    'message' => $res->errors()
+                ]);
+            }
+            $mp4Info = ValidationHelper::getInputData($request, $rule);
+            $trueFileName = $mp4Info['lesson_id'] . "#" . $mp4Info['file_name'];
+            $fileName = $mp4Info['lesson_id'] . "#TS#" . $mp4Info['file_name'];
+            $mp4Info['true_file_name'] = $trueFileName;
+            $mp4Info['file_name'] = $fileName;
+            $mp4Info['file_url'] = "http://p37gfblil.bkt.clouddn.com" . $mp4Info['true_file_name'];
+            if ($this->fileService->isFileNameExist($mp4Info['file_name'])) {
+                return response()->json([
+                    'code' => 2002,
+                    'message' => "文件名已存在"
+                ]);
+            }
+            $auth = new Auth($this->accessKey, $this->secretKey);
+            //过期时间
+            $expires = 3600;
+            //存储位置和名称
+            $saveMp4Entry = base64_urlSafeEncode($this->bucket . ":" . $fileName);
+            //视频处理方式
 
-        $url = base64_urlSafeEncode("p37gfblil.bkt.clouddn.com");
-        $videoDeal = "avthumb/m3u8/noDomain/0/domain/" . $url . "/vb/500k|saveas/" . $saveMp4Entry;
-        $policy = array(
-            'saveKey'=>$trueFileName,
-            'callbackUrl' => 'mooc.sealbaby.cn/upload/callback',
-            'callbackBody' => '{"persistentId":"$(persistentId)","mp4Info":'.json_encode($mp4Info).'}',
-            'callbackBodyType' => 'application/json',
-            'persistentOps' => $videoDeal,
-            'persistentPipeline' => "video-pipe",
-            'persistentNotifyUrl' => 'mooc.sealbaby.cn/notify'
-        );
-        $uploadToken = $auth->uploadToken($this->bucket,null, $expires, $policy, true);
-        return response()->json([
-            'uploadToken' => $uploadToken
-        ]);
+            $url = base64_urlSafeEncode("p37gfblil.bkt.clouddn.com");
+            $videoDeal = "avthumb/m3u8/noDomain/0/domain/" . $url . "/vb/500k|saveas/" . $saveMp4Entry;
+            $policy = array(
+                'saveKey' => $trueFileName,
+                'callbackUrl' => 'mooc.sealbaby.cn/upload/callback',
+                'callbackBody' => '{"persistentId":"$(persistentId)","mp4Info":' . json_encode($mp4Info) . '}',
+                'callbackBodyType' => 'application/json',
+                'persistentOps' => $videoDeal,
+                'persistentPipeline' => "video-pipe",
+                'persistentNotifyUrl' => 'mooc.sealbaby.cn/notify'
+            );
+            $uploadToken = $auth->uploadToken($this->bucket, null, $expires, $policy, true);
+            return response()->json([
+                'uploadToken' => $uploadToken
+            ]);
+        }
+        else{
+            return response()->json([
+                'code' => 2003,
+                'message' => '没有权限'
+            ]);
+        }
     }
     public function callback(Request $request){
         $persistentId=$request->persistentId;
@@ -87,5 +99,23 @@ class FileUploadController extends Controller
         DB::table('files')->where('status_id',$request->id)->update([
             'status' => $request->code
         ]);
+    }
+    public function getFileList(Request $request,$lesson_id){
+        $user=$request->user;
+        if ($this->userService->permissionCheck($user->user_id,"teacher")||$this->userService->permissionCheck($user->user_id,"admin"))
+        {
+            $list=$this->fileService->getLessonFileList($lesson_id);
+            return response()->json([
+                'code' => 2000,
+                'list' => $list
+            ]);
+        }
+        else
+        {
+            return response()->json([
+                'code' => 2003,
+                'message' => '没有权限'
+            ]);
+        }
     }
 }

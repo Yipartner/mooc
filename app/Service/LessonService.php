@@ -9,7 +9,7 @@ class LessonService
 
     public function createLesson($lessonInfo)
     {
-        $id=DB::table('lessons')->insertGetId($lessonInfo);
+        $id = DB::table('lessons')->insertGetId($lessonInfo);
         return $id;
     }
 
@@ -20,13 +20,16 @@ class LessonService
             'lesson_description' => $lessonInfo['lesson_description']
         ]);
     }
-    public function getLessonInfo($lessonId){
-        $lessonInfo=DB::table('lessons')->where('lesson_id',$lessonId)->first();
+
+    public function getLessonInfo($lessonId)
+    {
+        $lessonInfo = DB::table('lessons')->where('lesson_id', $lessonId)->first();
         return $lessonInfo;
     }
+
     public function getLessonList()
     {
-        $lessonList = DB::table('lessons')->select('lesson_id','lesson_name','lesson_master_id')->get();
+        $lessonList = DB::table('lessons')->select('lesson_id', 'lesson_name', 'lesson_master_id')->get();
         return $lessonList;
     }
 
@@ -34,11 +37,22 @@ class LessonService
     {
         DB::transaction(function () use ($lessonId) {
             DB::table('lessons')->where('lesson_id', $lessonId)->delete();
-            DB::table('files')->where('lesson_id',$lessonId)->update([
+            DB::table('files')->where('lesson_id', $lessonId)->update([
                 'lesson_id' => 0
             ]);
             DB::table('class_hours')->where('lesson_id', $lessonId)->delete();
             DB::table('lesson_users')->where('lesson_id', $lessonId)->delete();
         });
+    }
+
+    public function canUserAccessClass($user_id, $class_id)
+    {
+        $lesson_id=DB::table('class_hours')->where('class_hour_id',$class_id)->value('lesson_id');
+        $res = DB::table('lesson_users')->where('lesson_id', $lesson_id)->where('user_id', $user_id)->first();
+        if ($res) return true;
+        else return false;
+    }
+    public function addUserIntoLesson(){
+
     }
 }

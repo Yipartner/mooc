@@ -27,4 +27,13 @@ class FileService
             return true;
         else return false;
     }
+
+    public function getLessonFileList($lessonId){
+        $list=DB::table('files')->where('lesson_id',$lessonId)->get();
+        if ($list->first()){
+            return $list;
+        }
+        else
+            return null;
+    }
 }
