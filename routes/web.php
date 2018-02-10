@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/upload/token','FileUploadController@getUploadToken');
+Route::post('/upload/token','FileUploadController@getUploadToken')->middleware('token');
 Route::post('/upload/callback','FileUploadController@callback');
 Route::post('/notify','FileUploadController@notify');
 
