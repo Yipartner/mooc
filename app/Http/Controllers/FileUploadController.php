@@ -45,7 +45,7 @@ class FileUploadController extends Controller
             $fileName = $mp4Info['lesson_id'] . "_TS_" . $mp4Info['file_name'];
             $mp4Info['true_file_name'] = $trueFileName;
             $mp4Info['file_name'] = $fileName;
-            $mp4Info['file_url'] = "http://p37gfblil.bkt.clouddn.com" . $mp4Info['true_file_name'];
+            $mp4Info['file_url'] = "http://p37gfblil.bkt.clouddn.com/" . $mp4Info['true_file_name'];
             if ($this->fileService->isFileNameExist($mp4Info['file_name'])) {
                 return response()->json([
                     'code' => 2002,
