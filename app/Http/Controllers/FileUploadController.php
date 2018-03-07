@@ -41,8 +41,8 @@ class FileUploadController extends Controller
                 ]);
             }
             $mp4Info = ValidationHelper::getInputData($request, $rule);
-            $trueFileName = $mp4Info['lesson_id'] . "#" . $mp4Info['file_name'];
-            $fileName = $mp4Info['lesson_id'] . "#TS#" . $mp4Info['file_name'];
+            $trueFileName = $mp4Info['lesson_id'] . "_" . $mp4Info['file_name'];
+            $fileName = $mp4Info['lesson_id'] . "_TS_" . $mp4Info['file_name'];
             $mp4Info['true_file_name'] = $trueFileName;
             $mp4Info['file_name'] = $fileName;
             $mp4Info['file_url'] = "http://p37gfblil.bkt.clouddn.com" . $mp4Info['true_file_name'];
